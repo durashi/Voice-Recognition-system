@@ -1,0 +1,35 @@
+from keras.models import Model, Sequential
+from keras import layers
+
+def encoder(filters, embedding_dimension, input_shape=None, dropout=0.05):
+    encoder = Sequential()
+
+    # 1st convolutional layer
+    if input_shape is None:
+        encoder.add(layers.Conv1D(filters, 32, padding='same', activation='relu'))
+    else:
+        encoder.add(layers.Conv1D(filters, 32, padding='same', activation='relu', input_shape=input_shape))
+        encoder.add(layers.BatchNormalization())
+        encoder.add(layers.SpatialDropout1D(dropout))
+        encoder.add(layers.MaxPool1D(4, 4))
+
+        encoder.add(layers.Conv1D(2*filters, 3, padding='same', activation='relu'))
+        encoder.add(layers.BatchNormalization())
+        encoder.add(layers.SpatialDropout1D(dropout))
+        encoder.add(layers.MaxPool1D())
+
+        encoder.add(layers.Conv1D(3 * filters, 3, padding='same', activation='relu'))
+        encoder.add(layers.BatchNormalization())
+        encoder.add(layers.SpatialDropout1D(dropout))
+        encoder.add(layers.MaxPool1D())
+
+        encoder.add(layers.Conv1D(4 * filters, 3, padding='same', activation='relu'))
+        encoder.add(layers.BatchNormalization())
+        encoder.add(layers.SpatialDropout1D(dropout))
+        encoder.add(layers.MaxPool1D())
+
+        encoder.add(layers.GlobalMaxPool1D())
+
+        encoder.add(layers.Dense(embedding_dimension))
+
+        return encoder
